@@ -1,9 +1,9 @@
 package com.ghartmann.domain;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.SequenceGenerator;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -59,6 +59,10 @@ public class User {
         this.userName = userName;
         this.email = email;
         this.password = password;
+    }
+    
+    public User() {
+        // Default constructor for JPA
     }
 
     

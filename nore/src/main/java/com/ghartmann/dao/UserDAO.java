@@ -1,7 +1,7 @@
 package com.ghartmann.dao;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 
 import com.ghartmann.JPAUtil;
 import com.ghartmann.domain.User;
@@ -35,21 +35,71 @@ public class UserDAO implements IUserDAO {
 
     @Override
     public User getUserById(int userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserById'");
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        User user = null;
+
+        try {
+            user = entityManager.find(User.class, userId);
+            return user;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar usuário", e);
+        } finally {
+            entityManager.close();
+        }
     }
 
     @Override
     public boolean updateUser(User user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateUser'");
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        EntityTransaction transaction = null;
+
+        try {
+            transaction = entityManager.getTransaction();
+            transaction.begin();
+
+            User existingUser = entityManager.find(User.class, user.getId());
+            if (existingUser != null) {
+                existingUser.setUserName(user.getUserName());
+                existingUser.setEmail(user.getEmail());
+                existingUser.setPassword(user.getPassword());
+                entityManager.merge(existingUser);
+            }
+
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Erro ao atualizar usuário", e);
+        } finally {
+            entityManager.close();
+        }
     }
 
     @Override
     public boolean deleteUser(int userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteUser'");
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        EntityTransaction transaction = null;
+
+        try {
+            transaction = entityManager.getTransaction();
+            transaction.begin();
+
+            User user = entityManager.find(User.class, userId);
+            if (user != null) {
+                entityManager.remove(user);
+            }
+
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Erro ao deletar usuário", e);
+        } finally {
+            entityManager.close();
+        }
     }
-
-
 }
