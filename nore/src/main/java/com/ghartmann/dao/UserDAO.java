@@ -1,5 +1,9 @@
 package com.ghartmann.dao;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+
+import com.ghartmann.JPAUtil;
 import com.ghartmann.domain.User;
 
 public class UserDAO implements IUserDAO {
@@ -7,8 +11,26 @@ public class UserDAO implements IUserDAO {
 
     @Override
     public boolean registerUser(User user) {
-        // TODO Auto-generated method stub
-        return true;
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        EntityTransaction transaction = null;
+
+        try {
+            transaction = entityManager.getTransaction();
+            transaction.begin();
+
+            entityManager.persist(user);
+
+            transaction.commit();
+            
+            return true;
+        } catch (Exception e) {
+            if(transaction != null && transaction.isActive()){
+                transaction.rollback();
+            }
+            throw new RuntimeException("Erro ao adicionar usuário", e);
+        } finally{
+            entityManager.close();
+        }
     }
 
     @Override

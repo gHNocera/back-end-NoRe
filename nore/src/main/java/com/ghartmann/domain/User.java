@@ -1,10 +1,35 @@
 package com.ghartmann.domain;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "USER_TABLE")
 public class User {
     
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="id_user_sequence")
+    @SequenceGenerator(name="id_user_sequence", sequenceName="user_seq")
+    private int id;
+
+    @Column(name = "userName", nullable = false, unique = true)
     private String userName;
+
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
+
+    @Column(name = "password", nullable = false)
     private String password;
+
+    public int getId() {
+        return id;
+    }
 
     public String getUserName() {
         return userName;
