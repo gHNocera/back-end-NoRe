@@ -6,16 +6,23 @@ import org.junit.Test;
 import com.ghartmann.dao.IUserDAO;
 import com.ghartmann.dao.UserDAO;
 import com.ghartmann.domain.User;
+import com.ghartmann.validations.UserValidations;
 
 /**
  * Unit test for simple App.
  */
 public class AppTest {
-    IUserDAO userDAO = new UserDAO();
+     IUserDAO userDAO = new UserDAO();
+     UserValidations userValidations = new UserValidations();
+     PasswordUtil passwordUtil = new PasswordUtil();
     
     @Test
     public void registerUserTest(){
-        User user = new User("testUser", "testEmail", "testPassword");
+        User user = new User("testUser", "testEmail@test.com", "testPassword");
+        userValidations.validateUserName(user.getUserName());
+        userValidations.validateEmail(user.getEmail());
+        userValidations.validatePassword(user.getPassword());
+        user.setPasswordHash(passwordUtil.hashPassword(user.getPassword()));
         userDAO.registerUser(user);
     }
 
