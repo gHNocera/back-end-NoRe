@@ -23,18 +23,18 @@ public class UserController {
     @PostMapping("/register")
     public String register(@RequestBody User user) {
         if (userDAO.registerUser(user)) {
-            return "User registered successfully";
+            return "Usuário cadastrado com sucesso";
         } else {
-            return "Error registering user";
+            return "Erro ao cadastrar usuário. Tente novamente.";
         }
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String userName, @RequestParam String password) {
+    public String login(@RequestParam (name = "username") String userName, @RequestParam (name = "password") String password) {
         if (userDAO.loginUser(userName, password)) {
-            return "Login successful";
+            return "Login realizado com sucesso";
         } else {
-            return "Invalid username or password";
+            return "Usúario ou senha incorretas. Tente novamente.";
         }
     }
 
