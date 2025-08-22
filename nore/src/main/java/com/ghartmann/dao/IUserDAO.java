@@ -8,4 +8,5 @@ public interface IUserDAO {
     User getUserById(int userId);
     boolean updateUser(User user);
     boolean deleteUser(int userId);
+    boolean loginUser(String userName, String password);
 }

@@ -1,46 +1,53 @@
 package com.ghartmann.domain;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
-@Table(name = "USER_TABLE")
+@Table(name = "user_table") // Recomendo usar nome em lowercase
 public class User {
     
     @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE, generator="id_user_sequence")
-    @SequenceGenerator(name="id_user_sequence", sequenceName="user_seq")
-    private int id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "id_user_sequence")
+    @SequenceGenerator(name = "id_user_sequence", sequenceName = "user_seq", allocationSize = 1)
+    @Column(name = "id")
+    private Integer id; 
 
-    @Column(name = "userName", nullable = false, unique = true)
+    @Column(name = "user_name", nullable = false, unique = true)
     private String userName;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Transient
     private String password;
 
-    @Column(name = "passwordHash", nullable = false)
+    @Column(name = "password_hash", nullable = false) 
     private String passwordHash;
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public User() {
+        // Default constructor for JPA
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public User(String userName, String email, String password) {
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
     }
 
-    public int getId() {
+    // Getters e Setters
+    public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getUserName() {
@@ -67,19 +74,11 @@ public class User {
         this.password = password;
     }
 
-    public User(String userName, String email, String password) {
-        this.userName = userName;
-        this.email = email;
-        this.password = password;
-    }
-    
-    public User() {
-        // Default constructor for JPA
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    
-
-    
-
-
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
 }
