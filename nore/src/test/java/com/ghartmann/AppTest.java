@@ -34,7 +34,7 @@ public class AppTest {
     public void updateUserTest(){
         User user = registerUser();
         
-        user.setUserName("updatedUser");
+        user.setUsername("updatedUser");
         user.setEmail("updatedEmail@test.com");
         user.setPassword("updatedPassword");
         
@@ -42,7 +42,7 @@ public class AppTest {
         assert isUpdated;
         
         User updatedUser = userDAO.getUserById(user.getId());
-        assert updatedUser.getUserName().equals("updatedUser");
+        assert updatedUser.getUsername().equals("updatedUser");
     }
 
     @Test
@@ -60,7 +60,7 @@ public class AppTest {
     public void loginUserTest(){
         User user = registerUser();
         
-        boolean isLoggedIn = userDAO.loginUser(user.getUserName(), user.getPassword());
+        boolean isLoggedIn = userDAO.loginUser(user.getUsername(), user.getPassword());
         assert isLoggedIn;
         
         boolean isLoginFailed = userDAO.loginUser("testUser", "wrongPassword");
@@ -68,8 +68,8 @@ public class AppTest {
     }
 
     public User registerUser(){
-        User user = new User("testUser", "testEmail@test.com", "testPassword");
-        userValidations.validateUserName(user.getUserName());
+        User user = new User("Gabriel", "testUser", "testEmail@test.com", "testPassword");
+        userValidations.validateUserName(user.getUsername());
         userValidations.validateEmail(user.getEmail());
         userValidations.validatePassword(user.getPassword());
         user.setPasswordHash(passwordUtil.hashPassword(user.getPassword()));

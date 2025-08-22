@@ -20,9 +20,6 @@ public class UserDAO implements IUserDAO {
             transaction = entityManager.getTransaction();
             transaction.begin();
 
-            String hash = passwordUtil.hashPassword(user.getPassword());
-            user.setPasswordHash(hash);
-
             entityManager.persist(user);
 
             transaction.commit();
@@ -31,6 +28,7 @@ public class UserDAO implements IUserDAO {
             if(transaction != null && transaction.isActive()){
                 transaction.rollback();
             }
+            e.printStackTrace(); // Adicionado para logar a exceção
             throw new RuntimeException("Erro ao adicionar usuário", e);
         } finally{
             entityManager.close();
@@ -63,9 +61,12 @@ public class UserDAO implements IUserDAO {
 
             User existingUser = entityManager.find(User.class, user.getId());
             if (existingUser != null) {
-                existingUser.setUserName(user.getUserName());
+                existingUser.setUsername(user.getUsername());
                 existingUser.setEmail(user.getEmail());
-                existingUser.setPassword(user.getPassword());
+                if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                    String hash = passwordUtil.hashPassword(user.getPassword());
+                    existingUser.setPasswordHash(hash);
+                }
                 entityManager.merge(existingUser);
             }
 
@@ -108,11 +109,11 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean loginUser(String userName, String password) {
+    public boolean loginUser(String email, String password) {
         EntityManager entityManager = JPAUtil.getEntityManager();
         try {
-            User user = entityManager.createQuery("SELECT u FROM User u WHERE u.userName = :userName", User.class)
-                    .setParameter("userName", userName)
+            User user = entityManager.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+                    .setParameter("email", email)
                     .getSingleResult();
 
             if (user != null && passwordUtil.verifyPassword(password, user.getPasswordHash())) {

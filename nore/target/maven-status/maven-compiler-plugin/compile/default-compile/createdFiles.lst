@@ -1,6 +1,6 @@
+com\ghartmann\domain\User.class
 com\ghartmann\JPAUtil.class
 com\ghartmann\App.class
-com\ghartmann\domain\User.class
 com\ghartmann\PasswordUtil.class
 com\ghartmann\validations\UserValidations.class
 com\ghartmann\controller\UserController.class

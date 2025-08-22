@@ -1,8 +1,13 @@
-C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\PasswordUtil.java
-C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\JPAUtil.java
+C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\repository\PostRepository.java
 C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\controller\UserController.java
 C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\dao\UserDAO.java
 C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\domain\User.java
 C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\dao\IUserDAO.java
-C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\validations\UserValidations.java
 C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\App.java
+C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\PasswordUtil.java
+C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\controller\PostController.java
+C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\domain\Post.java
+C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\JPAUtil.java
+C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\ChatApplication.java
+C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\config\WebConfig.java
+C:\Users\Gabriel\Documents\GitHub\back-end-NoRe\nore\src\main\java\com\ghartmann\validations\UserValidations.java
