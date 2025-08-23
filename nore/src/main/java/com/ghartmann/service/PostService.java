@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.ghartmann.dao.IUserDAO;
 import com.ghartmann.domain.Post;
-import com.ghartmann.domain.PostDTO;
 import com.ghartmann.domain.User;
+import com.ghartmann.dto.PostDTO;
 import com.ghartmann.repository.PostRepository;
 
 public class PostService {

@@ -27,8 +27,8 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "nome")
-    private String nome;
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @Column(name = "email_verified")
     private boolean emailVerified = false;
@@ -45,7 +45,8 @@ public class User {
     @Transient
     private String password;
 
-    private Integer age;
+    @Column(name = "birth_date", nullable = true)
+    private String birth_date;
 
     @Column(name = "password_hash", nullable = false) 
     private String passwordHash;
@@ -54,8 +55,8 @@ public class User {
         // Default constructor for JPA
     }
 
-    public User(String nome, String username, String email, String password) {
-        this.nome = nome;
+    public User(String name, String username, String email, String password) {
+        this.name = name;
         this.username = username;
         this.email = email;
         this.password = password;
@@ -103,20 +104,20 @@ public class User {
     }
 
     
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
-    public void setNome(String nome) {
-        this.nome = nome;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Integer getAge() {
-        return age;
+    public String getBirth_date() {
+        return birth_date;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
+    public void setBirth_date(String birth_date) {
+        this.birth_date = birth_date;
     }
 
     public boolean isEmailVerified() {

@@ -1,8 +1,6 @@
 package com.ghartmann.controller;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ghartmann.dao.IUserDAO;
 import com.ghartmann.dao.UserDAO;
 import com.ghartmann.domain.Post;
-import com.ghartmann.domain.PostDTO;
 import com.ghartmann.domain.User;
+import com.ghartmann.dto.PostDTO;
 import com.ghartmann.repository.PostRepository;
 
 @RestController

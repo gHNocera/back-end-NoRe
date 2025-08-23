@@ -5,7 +5,6 @@ import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 
-import java.time.LocalDateTime;
 
 import com.ghartmann.JPAUtil;
 import com.ghartmann.PasswordUtil;

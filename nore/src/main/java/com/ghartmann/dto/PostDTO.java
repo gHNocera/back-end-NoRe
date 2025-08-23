@@ -1,4 +1,4 @@
-package com.ghartmann.domain;
+package com.ghartmann.dto;
 
 import java.util.List;
 
