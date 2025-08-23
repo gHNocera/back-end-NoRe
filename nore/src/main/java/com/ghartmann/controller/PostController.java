@@ -50,7 +50,8 @@ public class PostController {
 
     @PostMapping("/{postId}/like/{userId}")
     public Post likePost(@PathVariable Integer postId, @PathVariable Integer userId) {
-        Post post = postRepository.findById(postId);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
 
         User user = userDAO.getUserById(userId);
 

@@ -9,4 +9,8 @@ public interface IUserDAO {
     boolean updateUser(User user);
     boolean deleteUser(int userId);
     boolean loginUser(String userName, String password);
+    User getUserByVerificationCode(String code);
+    User getUserByEmail(String email);
+    boolean verifyUserEmail(String token);
+    boolean incrementVerificationAttempts(String email);
 }

@@ -2,6 +2,10 @@ package com.ghartmann.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
+
+import java.time.LocalDateTime;
 
 import com.ghartmann.JPAUtil;
 import com.ghartmann.PasswordUtil;
@@ -63,10 +67,13 @@ public class UserDAO implements IUserDAO {
             if (existingUser != null) {
                 existingUser.setUsername(user.getUsername());
                 existingUser.setEmail(user.getEmail());
-                if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-                    String hash = passwordUtil.hashPassword(user.getPassword());
-                    existingUser.setPasswordHash(hash);
+                if (user.getPasswordHash() != null && !user.getPasswordHash().isEmpty()) {
+                    existingUser.setPasswordHash(user.getPasswordHash());
                 }
+                existingUser.setEmailVerified(user.isEmailVerified());
+                existingUser.setVerificationCode(user.getVerificationCode());
+                existingUser.setCodeExpiryDate(user.getCodeExpiryDate());
+                
                 entityManager.merge(existingUser);
             }
 
@@ -112,11 +119,16 @@ public class UserDAO implements IUserDAO {
     public boolean loginUser(String email, String password) {
         EntityManager entityManager = JPAUtil.getEntityManager();
         try {
-            User user = entityManager.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
-                    .setParameter("email", email)
-                    .getSingleResult();
+            User user = getUserByEmail(email);
+            if (user == null) {
+                return false;
+            }
 
-            if (user != null && passwordUtil.verifyPassword(password, user.getPasswordHash())) {
+            if (!user.isEmailVerified()) {
+                throw new RuntimeException("Email não verificado");
+            }
+
+            if (passwordUtil.verifyPassword(password, user.getPasswordHash())) {
                 return true;
             }
             return false;
@@ -126,4 +138,101 @@ public class UserDAO implements IUserDAO {
             entityManager.close();
         }
     }
+
+     @Override
+    public User getUserByVerificationCode(String code) {
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        try {
+            TypedQuery<User> query = entityManager.createQuery(
+                "SELECT u FROM User u WHERE u.verificationCode = :code", User.class);
+            query.setParameter("code", code);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar usuário por código", e);
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    @Override
+    public boolean verifyUserEmail(String code) {
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        EntityTransaction transaction = null;
+
+        try {
+            User user = getUserByVerificationCode(code);
+            if (user == null) {
+                return false;
+            }
+
+            transaction = entityManager.getTransaction();
+            transaction.begin();
+
+            user.setEmailVerified(true);
+            user.setVerificationCode(null);
+            user.setCodeExpiryDate(null);
+            user.setCodeAttempts(0);
+            entityManager.merge(user);
+
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Erro ao verificar email", e);
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    @Override
+    public boolean incrementVerificationAttempts(String email) {
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        EntityTransaction transaction = null;
+
+        try {
+            User user = getUserByEmail(email);
+            if (user == null) {
+                return false;
+            }
+
+            transaction = entityManager.getTransaction();
+            transaction.begin();
+
+            user.incrementCodeAttempts();
+            entityManager.merge(user);
+
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            if (transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw new RuntimeException("Erro ao incrementar tentativas", e);
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        EntityManager entityManager = JPAUtil.getEntityManager();
+        try {
+            TypedQuery<User> query = entityManager.createQuery(
+                "SELECT u FROM User u WHERE u.email = :email", User.class);
+            query.setParameter("email", email);
+            return query.getSingleResult();
+        } catch (NoResultException e) {
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao buscar usuário por email", e);
+        } finally {
+            entityManager.close();
+        }
+    }
+
+
 }

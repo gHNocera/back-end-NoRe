@@ -1,5 +1,7 @@
 package com.ghartmann.domain;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,8 +30,22 @@ public class User {
     @Column(name = "nome")
     private String nome;
 
+    @Column(name = "email_verified")
+    private boolean emailVerified = false;
+
+    @Column(name = "verification_code", length = 6)
+    private String verificationCode;
+
+    @Column(name = "code_expiry_date")
+    private LocalDateTime codeExpiryDate;
+
+    @Column(name = "code_attempts")
+    private int codeAtempts = 0;
+
     @Transient
     private String password;
+
+    private Integer age;
 
     @Column(name = "password_hash", nullable = false) 
     private String passwordHash;
@@ -94,4 +110,50 @@ public class User {
     public void setNome(String nome) {
         this.nome = nome;
     }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public LocalDateTime getCodeExpiryDate() {
+        return codeExpiryDate;
+    }
+
+    public void setCodeExpiryDate(LocalDateTime codeExpiryDate) {
+        this.codeExpiryDate = codeExpiryDate;
+    }
+
+    public int getCodeAttempts() {
+        return codeAtempts;
+    }
+
+    public void setCodeAttempts(int codeAtempts) {
+        this.codeAtempts = codeAtempts;
+    }
+
+    public void incrementCodeAttempts() {
+        this.codeAtempts++;
+    }
+
 }
