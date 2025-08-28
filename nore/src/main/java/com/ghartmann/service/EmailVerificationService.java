@@ -1,55 +1,58 @@
 package com.ghartmann.service;
 
-import com.ghartmann.dao.IUserDAO;
 import com.ghartmann.domain.User;
+import com.ghartmann.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
 public class EmailVerificationService {
 
-    @Autowired
-    private IUserDAO userDAO;
-    
-    @Autowired
-    private JavaMailSender mailSender;
-    
+    private final UserRepository userRepository;
+    private final JavaMailSender mailSender;
+
     @Value("${spring.mail.username}")
     private String fromEmail;
-    
+
     private static final int CODE_LENGTH = 6;
     private static final int CODE_EXPIRY_MINUTES = 15;
     private static final int MAX_ATTEMPTS = 3;
-    
-    // Gerar código numérico de 6 dígitos
+
+    @Autowired
+    public EmailVerificationService(UserRepository userRepository, JavaMailSender mailSender) {
+        this.userRepository = userRepository;
+        this.mailSender = mailSender;
+    }
+
+    /** Gerar código numérico de 6 dígitos */
     public String generateVerificationCode() {
         Random random = new Random();
         StringBuilder code = new StringBuilder();
-        
         for (int i = 0; i < CODE_LENGTH; i++) {
-            code.append(random.nextInt(10)); // Dígitos de 0-9
+            code.append(random.nextInt(10));
         }
-        
         return code.toString();
     }
-    
-    // Calcular data de expiração (15 minutos)
+
+    /** Calcular data de expiração */
     public LocalDateTime calculateExpiryDate() {
         return LocalDateTime.now().plusMinutes(CODE_EXPIRY_MINUTES);
     }
-    
-    // Verificar se o código expirou
+
+    /** Verificar se o código expirou */
     public boolean isCodeExpired(LocalDateTime expiryDate) {
         return expiryDate != null && expiryDate.isBefore(LocalDateTime.now());
     }
-    
-    // Enviar email com código
+
+    /** Enviar email com código */
     public void sendVerificationEmail(User user) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
@@ -62,54 +65,58 @@ public class EmailVerificationService {
             "Se você não solicitou este código, ignore este email.\n\n" +
             "Atenciosamente,\nEquipe NoRe"
         );
-        
+
         mailSender.send(message);
     }
-    
-    // Verificar código
+
+    /** Verificar código de email */
+    @Transactional
     public boolean verifyEmail(String code, String email) {
-        User user = userDAO.getUserByVerificationCode(code);
-        
-        if (user == null || !user.getEmail().equals(email)) {
-            return false; // Código não encontrado ou não corresponde ao email
-        }
-        
-        // Verificar se o código expirou
-        if (isCodeExpired(user.getCodeExpiryDate())) {
-            return false; // Código expirado
-        }
-        
-        // Verificar número máximo de tentativas
-        if (user.getCodeAttempts() >= MAX_ATTEMPTS) {
-            return false; // Muitas tentativas
-        }
-        
-        return userDAO.verifyUserEmail(code);
+        Optional<User> optionalUser = userRepository.findByVerificationCode(code);
+
+        if (optionalUser.isEmpty()) return false;
+
+        User user = optionalUser.get();
+
+        if (!user.getEmail().equals(email)) return false;
+        if (isCodeExpired(user.getCodeExpiryDate())) return false;
+        if (user.getCodeAttempts() >= MAX_ATTEMPTS) return false;
+
+        user.setEmailVerified(true);
+        user.setVerificationCode(null);
+        user.setCodeAttempts(0);
+        user.setCodeExpiryDate(null);
+
+        userRepository.save(user);
+        return true;
     }
-    
-    // Reenviar código
+
+    /** Reenviar código de verificação */
+    @Transactional
     public boolean resendVerificationCode(String email) {
-        User user = userDAO.getUserByEmail(email);
-        
-        if (user == null || user.isEmailVerified()) {
-            return false;
-        }
-        
-        // Gerar novo código
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) return false;
+
+        User user = optionalUser.get();
+
+        if (user.isEmailVerified()) return false;
+
         user.setVerificationCode(generateVerificationCode());
         user.setCodeExpiryDate(calculateExpiryDate());
         user.setCodeAttempts(0);
-        
-        if (userDAO.updateUser(user)) {
-            sendVerificationEmail(user);
-            return true;
-        }
-        
-        return false;
+
+        userRepository.save(user);
+        sendVerificationEmail(user);
+        return true;
     }
-    
-    // Incrementar tentativas
+
+    /** Incrementar tentativas de verificação */
+    @Transactional
     public void incrementVerificationAttempts(String email) {
-        userDAO.incrementVerificationAttempts(email);
+        userRepository.findByEmail(email).ifPresent(user -> {
+            user.incrementCodeAttempts();
+            userRepository.save(user);
+        });
     }
 }

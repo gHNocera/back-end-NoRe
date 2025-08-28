@@ -1,5 +1,6 @@
 package com.ghartmann.domain;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -40,13 +41,13 @@ public class User {
     private LocalDateTime codeExpiryDate;
 
     @Column(name = "code_attempts")
-    private int codeAtempts = 0;
+    private int codeAttempts = 0;
 
     @Transient
     private String password;
 
-    @Column(name = "birth_date", nullable = true)
-    private String birth_date;
+    @Column(name = "nascimento", nullable = false, columnDefinition = "TIMESTAMP")
+    private Instant nascimento;
 
     @Column(name = "password_hash", nullable = false) 
     private String passwordHash;
@@ -112,12 +113,12 @@ public class User {
         this.name = name;
     }
 
-    public String getBirth_date() {
-        return birth_date;
+    public Instant getNascimento() {
+        return nascimento;
     }
 
-    public void setBirth_date(String birth_date) {
-        this.birth_date = birth_date;
+    public void setNascimento(Instant nascimento) {
+        this.nascimento = nascimento;
     }
 
     public boolean isEmailVerified() {
@@ -146,15 +147,15 @@ public class User {
     }
 
     public int getCodeAttempts() {
-        return codeAtempts;
+        return codeAttempts;
     }
 
-    public void setCodeAttempts(int codeAtempts) {
-        this.codeAtempts = codeAtempts;
+    public void setCodeAttempts(int codeAttempts) {
+        this.codeAttempts = codeAttempts;
     }
 
     public void incrementCodeAttempts() {
-        this.codeAtempts++;
+        this.codeAttempts++;
     }
 
 }

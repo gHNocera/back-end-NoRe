@@ -1,57 +1,77 @@
 package com.ghartmann.service;
 
-import java.util.List;
-
-
-import com.ghartmann.dao.IUserDAO;
 import com.ghartmann.domain.Post;
 import com.ghartmann.domain.User;
-import com.ghartmann.dto.PostDTO;
 import com.ghartmann.repository.PostRepository;
+import com.ghartmann.repository.UserRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+@Service
 public class PostService {
 
     private final PostRepository postRepository;
-    private final IUserDAO userDAO;
+    private final UserRepository userRepository;
 
-    public PostService(PostRepository postRepository, IUserDAO userDAO) {
+    @Autowired
+    public PostService(PostRepository postRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
-        this.userDAO = userDAO;
+        this.userRepository = userRepository;
     }
 
-    public Post createPost(PostDTO postDTO) {
-        Post post = new Post();
-        post.setContent(postDTO.getContent());
-        post.setUsername(postDTO.getUsername());
-        post.setLikes(postDTO.getLikes());
-        post.setComentarios(postDTO.getComments());
-        post.setTimeStamp(
-            java.time.Instant.ofEpochMilli(postDTO.getTimestamp())
-                             .atZone(java.time.ZoneId.systemDefault())
-                             .toLocalDateTime()
-        );
+    /** Criar novo post */
+    @Transactional
+    public Post createPost(Post post) {
         return postRepository.save(post);
     }
 
-    public List<Post> getAllPosts() {
-        return postRepository.findAll();
+    /** Buscar post por ID */
+    public Optional<Post> getPostById(Integer postId) {
+        return postRepository.findById(postId);
     }
 
-    public Post likePost(Integer postID, Integer userId){
-        Post post = postRepository.findById(postID)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+    /** Curtir post */
+    @Transactional
+    public void likePost(Integer postId, Integer userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
 
-        User user = userDAO.getUserById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        // Verificar se o usuário já curtiu o post
-        boolean alreadyLiked = post.getLikedBy().stream()
-                .anyMatch(likedUser -> likedUser.getId().equals(userId));
-        
-        if (alreadyLiked) {
-            throw new RuntimeException("User already liked this post");
+        // Evita likes duplicados
+        if (!post.getLikedBy().contains(user)) {
+            post.getLikedBy().add(user);
+            post.setLikes(post.getLikes() + 1);
+            postRepository.save(post);
         }
+    }
 
-        post.getLikedBy().add(user);
-        return postRepository.save(post);
+    /** Descurtir post */
+    @Transactional
+    public void unlikePost(Integer postId, Integer userId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (post.getLikedBy().remove(user)) {
+            post.setLikes(post.getLikes() - 1);
+            postRepository.save(post);
+        }
+    }
+
+    /** Deletar post */
+    @Transactional
+    public void deletePost(Integer postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new RuntimeException("Post não encontrado");
+        }
+        postRepository.deleteById(postId);
     }
 }

@@ -1,86 +1,136 @@
 package com.ghartmann.service;
 
-import com.ghartmann.dao.IUserDAO;
-import com.ghartmann.domain.User;
-import com.ghartmann.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ghartmann.domain.User;
+import com.ghartmann.dto.UserRegisterDTO;
+import com.ghartmann.dto.UserResponseDTO;
+import com.ghartmann.mapper.UserMapper;
+import com.ghartmann.repository.UserRepository;
+import com.ghartmann.PasswordUtil;
+
+import java.util.Optional;
 
 @Service
 public class UserService {
 
-    private final IUserDAO userDAO;
+    private final UserRepository userRepository;
     private final EmailVerificationService emailVerificationService;
     private final PasswordUtil passwordUtil;
 
     @Autowired
-    public UserService(IUserDAO userDAO, EmailVerificationService emailVerificationService) {
-        this.userDAO = userDAO;
+    public UserService(UserRepository userRepository, EmailVerificationService emailVerificationService) {
+        this.userRepository = userRepository;
         this.emailVerificationService = emailVerificationService;
         this.passwordUtil = new PasswordUtil();
     }
 
+    /** Verifica se email já está cadastrado */
     public boolean emailExists(String email) {
-        return userDAO.getUserByEmail(email) != null;
+        return userRepository.findByEmail(email).isPresent();
     }
 
-    public User registerUser(User user) {
-        // Verificar se email já existe
-        if (emailExists(user.getEmail())) {
+    /** Registro de usuário */
+    @Transactional
+    public UserResponseDTO registerUser(UserRegisterDTO dto) {
+        if(emailExists(dto.getEmail())) {
             throw new RuntimeException("Email já está em uso");
         }
 
-        // Hash da senha
-         String hash = passwordUtil.hashPassword(user.getPassword());
-        user.setPasswordHash(hash);
+        String hash = passwordUtil.hashPassword(dto.getPassword());
+        User user = UserMapper.toEntity(dto, hash);
 
-        // Configurar verificação por código
-        user.setEmailVerified(false);
+        // Geração de código de verificação
         user.setVerificationCode(emailVerificationService.generateVerificationCode());
         user.setCodeExpiryDate(emailVerificationService.calculateExpiryDate());
-        user.setCodeAttempts(0);
 
-        if (userDAO.registerUser(user)) {
-            // Enviar email com código
-            emailVerificationService.sendVerificationEmail(user);
-            return user;
-        }
+        User savedUser = userRepository.save(user);
 
-        throw new RuntimeException("Erro ao registrar usuário");
-    }
-    
-    public boolean verifyEmail(String code, String email) {
-        return emailVerificationService.verifyEmail(code, email);
+        // Envio do email de verificação
+        emailVerificationService.sendVerificationEmail(savedUser);
+
+        return UserMapper.toDTO(savedUser);
     }
 
-    public void incrementVerificationAttempts(String email) {
-        userDAO.incrementVerificationAttempts(email);
-    }
-    
-    public boolean resendVerificationCode(String email) {
-        return emailVerificationService.resendVerificationCode(email);
-    }
-
-    public User getUserByEmail(String email) {
-        return userDAO.getUserByEmail(email);
-    }
-
-    public boolean isEmailVerified(String email) {
-        User user = userDAO.getUserByEmail(email);
-        return user != null && user.isEmailVerified();
-    }
-
+    /** Login de usuário */
     public boolean loginUser(String email, String password) {
-        User user = userDAO.getUserByEmail(email);
-        
-        if (user == null) {
-            throw new RuntimeException("Usuário não encontrado");
-        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        if (!user.isEmailVerified()) {
+        if(!user.isEmailVerified()) {
             throw new RuntimeException("Email não verificado. Verifique sua caixa de entrada.");
         }
 
-        return userDAO.loginUser(email, password);
+        return passwordUtil.verifyPassword(password, user.getPasswordHash());
+    }
+
+    /** Verificação de email */
+    @Transactional
+    public boolean verifyEmail(String code) {
+        Optional<User> optionalUser = userRepository.findByVerificationCode(code);
+        if(optionalUser.isEmpty()) return false;
+
+        User user = optionalUser.get();
+        user.setEmailVerified(true);
+        user.setVerificationCode(null);
+        user.setCodeAttempts(0);
+
+        userRepository.save(user);
+        return true;
+    }
+
+    /** Incremento de tentativas de verificação */
+    @Transactional
+    public void incrementVerificationAttempts(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        user.incrementCodeAttempts();
+        userRepository.save(user);
+    }
+
+    /** Reenvio de código de verificação */
+    @Transactional
+    public boolean resendVerificationCode(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        String code = emailVerificationService.generateVerificationCode();
+        user.setVerificationCode(code);
+        user.setCodeExpiryDate(emailVerificationService.calculateExpiryDate());
+        userRepository.save(user);
+
+        emailVerificationService.sendVerificationEmail(user);
+        return true;
+    }
+
+    /** Verifica se o email já foi confirmado */
+    public boolean isEmailVerified(String email) {
+        return userRepository.findByEmail(email)
+                .map(User::isEmailVerified)
+                .orElse(false);
+    }
+
+    /** Busca usuário pelo email */
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    /** Atualiza um usuário existente a partir do DTO */
+    @Transactional
+    public UserResponseDTO updateUser(UserRegisterDTO dto) {
+        User user = userRepository.findById(dto.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        String hash = (dto.getPassword() != null && !dto.getPassword().isEmpty())
+                ? passwordUtil.hashPassword(dto.getPassword())
+                : null;
+
+        UserMapper.updateEntity(user, dto, hash);
+
+        User updated = userRepository.save(user);
+        return UserMapper.toDTO(updated);
     }
 }

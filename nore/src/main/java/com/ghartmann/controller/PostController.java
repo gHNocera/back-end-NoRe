@@ -3,28 +3,29 @@ package com.ghartmann.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.ghartmann.dao.IUserDAO;
-import com.ghartmann.dao.UserDAO;
 import com.ghartmann.domain.Post;
 import com.ghartmann.domain.User;
 import com.ghartmann.dto.PostDTO;
+import com.ghartmann.dto.PostLikeDTO;
 import com.ghartmann.repository.PostRepository;
+import com.ghartmann.repository.UserRepository;
 
 @RestController
 @RequestMapping("/posts")
 public class PostController {
-    IUserDAO userDAO = new UserDAO();
+
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    private PostRepository postRepository;
+    public PostController(PostRepository postRepository, UserRepository userRepository) {
+        this.postRepository = postRepository;
+        this.userRepository = userRepository;
+    }
 
+    /** Criar novo post */
     @PostMapping
     public Post createPost(@RequestBody PostDTO postDTO) {
         Post post = new Post();
@@ -33,29 +34,35 @@ public class PostController {
         post.setLikes(postDTO.getLikes());
         post.setComentarios(postDTO.getComments());
         post.setTimeStamp(
-        java.time.Instant.ofEpochMilli(postDTO.getTimestamp())
-                         .atZone(java.time.ZoneId.systemDefault())
-                         .toLocalDateTime()
-    );
+            java.time.Instant.ofEpochMilli(postDTO.getTimestamp())
+                             .atZone(java.time.ZoneId.systemDefault())
+                             .toLocalDateTime()
+        );
         return postRepository.save(post);
-
     }
 
+    /** Listar todos os posts */
     @GetMapping
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
 
-    @PostMapping("/{postId}/like/{userId}")
-    public Post likePost(@PathVariable Integer postId, @PathVariable Integer userId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+    /** Curtir post */
+    @PostMapping("/like")
+    public Post likePost(@RequestBody PostLikeDTO dto) {
+        Post post = postRepository.findById(dto.getPostId())
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
 
-        User user = userDAO.getUserById(userId);
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        post.getLikedBy().add(user);
-        return postRepository.save(post);
-    }
+        if (!post.getLikedBy().contains(user)) {
+            post.getLikedBy().add(user);
+            post.setLikes(post.getLikes() + 1);
+            postRepository.save(post);
+        }
 
+    return post;
+}
 
 }
