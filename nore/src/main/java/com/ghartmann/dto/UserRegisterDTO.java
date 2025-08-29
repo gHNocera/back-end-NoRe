@@ -6,9 +6,9 @@ public class UserRegisterDTO {
     private Integer id;
     private String username;
     private String email;
-    private String name;
+    private String nome;
     private Long nascimento;
-    private String password;
+    private String senha;
 
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
@@ -16,12 +16,12 @@ public class UserRegisterDTO {
     public void setUsername(String username) { this.username = username; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
     public Long getNascimento() { return nascimento; }
     public void setNascimento(Long nascimento) { this.nascimento = nascimento; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
 
 
 }

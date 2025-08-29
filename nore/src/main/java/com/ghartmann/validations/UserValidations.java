@@ -1,23 +1,23 @@
 package com.ghartmann.validations;
-import com.ghartmann.domain.User;
+import com.ghartmann.dto.UserRegisterDTO;
 
 public class UserValidations {
 
-    public void validateUser(User user) {
-        validateName(user.getName());
-        validateUserName(user.getName());
+    public void validateUser(UserRegisterDTO user) {
+        validateName(user.getNome());
+        validateUserName(user.getNome());
         validateEmail(user.getEmail());
-        validatePassword(user.getPassword());
+        validatePassword(user.getSenha());
     }
 
-    public void validateName(String name) {
-        if (name == null || name.isEmpty()) {
+    public void validateName(String nome) {
+        if (nome == null || nome.isEmpty()) {
             throw new IllegalArgumentException("Nome não pode ser nulo ou vazio");
         }
-        if (name.length() < 3 || name.length() > 100) {
+        if (nome.length() < 3 || nome.length() > 100) {
             throw new IllegalArgumentException("Nome deve ter entre 3 e 100 caracteres");
         }
-        if (!name.matches("^[A-Za-zÀ-ú ]+$")) {
+        if (!nome.matches("^[A-Za-zÀ-ú ]+$")) {
             throw new IllegalArgumentException("Nome deve conter apenas letras e espaços");
         }
     }

@@ -20,7 +20,7 @@ public class UserMapper {
         User user = new User();
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
-        user.setName(dto.getName());
+        user.setNome(dto.getNome());
         user.setPasswordHash(passwordHash);
         user.setEmailVerified(false);
         user.setCodeAttempts(0);
@@ -44,7 +44,7 @@ public class UserMapper {
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
-        dto.setName(user.getName());
+        dto.setName(user.getNome());
         dto.setEmailVerified(user.isEmailVerified());
 
         if (user.getNascimento() != null) {
@@ -56,7 +56,7 @@ public class UserMapper {
     public static void updateEntity(User user, UserRegisterDTO dto, String passwordHash) {
         if (dto.getUsername() != null) user.setUsername(dto.getUsername());
         if (dto.getEmail() != null) user.setEmail(dto.getEmail());
-        if (dto.getName() != null) user.setName(dto.getName());
+        if (dto.getNome() != null) user.setNome(dto.getNome());
         if (dto.getNascimento() != null) user.setNascimento(Instant.ofEpochMilli(dto.getNascimento()));
         if (passwordHash != null) user.setPasswordHash(passwordHash);
     }

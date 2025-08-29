@@ -96,7 +96,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
-            boolean loggedIn = userService.loginUser(user.getEmail(), user.getPassword());
+            boolean loggedIn = userService.loginUser(user.getEmail(), user.getSenha());
             
             if (loggedIn) {
                 Map<String, String> response = new HashMap<>();

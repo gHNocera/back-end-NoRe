@@ -5,8 +5,8 @@ public class UserResponseDTO {
     private Integer id;
     private String username;
     private String email;
-    private String name;
-    private Long nascimento;      // timestamp em milissegundos
+    private String nome;
+    private Long nascimento; 
     private boolean emailVerified;
 
     // Getters e Setters
@@ -35,11 +35,11 @@ public class UserResponseDTO {
     }
 
     public String getName() {
-        return name;
+        return nome;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String nome) {
+        this.nome = nome;
     }
 
     public Long getNascimento() {

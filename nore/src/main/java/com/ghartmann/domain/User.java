@@ -28,8 +28,8 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "name", nullable = false)
-    private String name;
+    @Column(name = "nome", nullable = false)
+    private String nome;
 
     @Column(name = "email_verified")
     private boolean emailVerified = false;
@@ -44,7 +44,7 @@ public class User {
     private int codeAttempts = 0;
 
     @Transient
-    private String password;
+    private String senha;
 
     @Column(name = "nascimento", nullable = false, columnDefinition = "TIMESTAMP")
     private Instant nascimento;
@@ -56,11 +56,11 @@ public class User {
         // Default constructor for JPA
     }
 
-    public User(String name, String username, String email, String password) {
-        this.name = name;
+    public User(String nome, String username, String email, String senha) {
+        this.nome = nome;
         this.username = username;
         this.email = email;
-        this.password = password;
+        this.senha = senha;
     }
 
     // Getters e Setters
@@ -88,12 +88,12 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getSenha() {
+        return senha;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 
     public String getPasswordHash() {
@@ -105,12 +105,12 @@ public class User {
     }
 
     
-    public String getName() {
-        return name;
+    public String getNome() {
+        return nome;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public Instant getNascimento() {

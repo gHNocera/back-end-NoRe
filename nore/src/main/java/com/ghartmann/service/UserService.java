@@ -9,6 +9,7 @@ import com.ghartmann.dto.UserRegisterDTO;
 import com.ghartmann.dto.UserResponseDTO;
 import com.ghartmann.mapper.UserMapper;
 import com.ghartmann.repository.UserRepository;
+import com.ghartmann.validations.UserValidations;
 import com.ghartmann.PasswordUtil;
 
 import java.util.Optional;
@@ -19,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final EmailVerificationService emailVerificationService;
     private final PasswordUtil passwordUtil;
+    private final UserValidations userValidations = new UserValidations();
 
     @Autowired
     public UserService(UserRepository userRepository, EmailVerificationService emailVerificationService) {
@@ -29,17 +31,17 @@ public class UserService {
 
     /** Verifica se email já está cadastrado */
     public boolean emailExists(String email) {
-        return userRepository.findByEmail(email).isPresent();
+        return userRepository.findByEmail(email) == null;
     }
 
     /** Registro de usuário */
     @Transactional
     public UserResponseDTO registerUser(UserRegisterDTO dto) {
         if(emailExists(dto.getEmail())) {
-            throw new RuntimeException("Email já está em uso");
+            throw new RuntimeException("Email já esta em uso");
         }
-
-        String hash = passwordUtil.hashPassword(dto.getPassword());
+        userValidations.validateUser(dto);
+        String hash = passwordUtil.hashPassword(dto.getSenha());
         User user = UserMapper.toEntity(dto, hash);
 
         // Geração de código de verificação
@@ -124,8 +126,8 @@ public class UserService {
         User user = userRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        String hash = (dto.getPassword() != null && !dto.getPassword().isEmpty())
-                ? passwordUtil.hashPassword(dto.getPassword())
+        String hash = (dto.getSenha() != null && !dto.getSenha().isEmpty())
+                ? passwordUtil.hashPassword(dto.getSenha())
                 : null;
 
         UserMapper.updateEntity(user, dto, hash);
