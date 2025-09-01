@@ -31,7 +31,11 @@ public class UserService {
 
     /** Verifica se email já está cadastrado */
     public boolean emailExists(String email) {
-        return userRepository.findByEmail(email) == null;
+        if (userRepository.findByEmail(email) == null) {
+            return false;
+        }else {
+            return true;
+        }
     }
 
     /** Registro de usuário */
