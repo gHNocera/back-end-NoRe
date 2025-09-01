@@ -60,7 +60,7 @@ public class EmailVerificationService {
         message.setSubject("Seu código de verificação - NoRe");
         message.setText(
             "Olá " + user.getUsername() + ",\n\n" +
-            "Seu código de verificação é: " + user.getVerificationCode() + "\n\n" +
+            "Seu código de verificação é: " + user.getCodigo() + "\n\n" +
             "Este código expirará em " + CODE_EXPIRY_MINUTES + " minutos.\n\n" +
             "Se você não solicitou este código, ignore este email.\n\n" +
             "Atenciosamente,\nEquipe NoRe"
@@ -72,7 +72,7 @@ public class EmailVerificationService {
     /** Verificar código de email */
     @Transactional
     public boolean verifyEmail(String code, String email) {
-        Optional<User> optionalUser = userRepository.findByVerificationCode(code);
+        Optional<User> optionalUser = userRepository.findByCodigo(code);
 
         if (optionalUser.isEmpty()) return false;
 
@@ -83,7 +83,7 @@ public class EmailVerificationService {
         if (user.getCodeAttempts() >= MAX_ATTEMPTS) return false;
 
         user.setEmailVerified(true);
-        user.setVerificationCode(null);
+        user.setCodigo(null);
         user.setCodeAttempts(0);
         user.setCodeExpiryDate(null);
 
@@ -102,7 +102,7 @@ public class EmailVerificationService {
 
         if (user.isEmailVerified()) return false;
 
-        user.setVerificationCode(generateVerificationCode());
+        user.setCodigo(generateVerificationCode());
         user.setCodeExpiryDate(calculateExpiryDate());
         user.setCodeAttempts(0);
 

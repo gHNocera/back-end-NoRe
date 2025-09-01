@@ -31,11 +31,7 @@ public class UserService {
 
     /** Verifica se email já está cadastrado */
     public boolean emailExists(String email) {
-        if (userRepository.findByEmail(email) == null) {
-            return false;
-        }else {
-            return true;
-        }
+        return userRepository.existsByEmail(email);
     }
 
     /** Registro de usuário */
@@ -49,7 +45,7 @@ public class UserService {
         User user = UserMapper.toEntity(dto, hash);
 
         // Geração de código de verificação
-        user.setVerificationCode(emailVerificationService.generateVerificationCode());
+        user.setCodigo(emailVerificationService.generateVerificationCode());
         user.setCodeExpiryDate(emailVerificationService.calculateExpiryDate());
 
         User savedUser = userRepository.save(user);
@@ -75,12 +71,12 @@ public class UserService {
     /** Verificação de email */
     @Transactional
     public boolean verifyEmail(String code) {
-        Optional<User> optionalUser = userRepository.findByVerificationCode(code);
+        Optional<User> optionalUser = userRepository.findByCodigo(code);
         if(optionalUser.isEmpty()) return false;
 
         User user = optionalUser.get();
         user.setEmailVerified(true);
-        user.setVerificationCode(null);
+        user.setCodigo(null);
         user.setCodeAttempts(0);
 
         userRepository.save(user);
@@ -104,7 +100,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         String code = emailVerificationService.generateVerificationCode();
-        user.setVerificationCode(code);
+        user.setCodigo(code);
         user.setCodeExpiryDate(emailVerificationService.calculateExpiryDate());
         userRepository.save(user);
 

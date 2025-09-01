@@ -34,8 +34,8 @@ public class User {
     @Column(name = "email_verified")
     private boolean emailVerified = false;
 
-    @Column(name = "verification_code", length = 6)
-    private String verificationCode;
+    @Column(name = "codigo", length = 6)
+    private String codigo;
 
     @Column(name = "code_expiry_date")
     private LocalDateTime codeExpiryDate;
@@ -130,12 +130,12 @@ public class User {
     }
 
     
-    public String getVerificationCode() {
-        return verificationCode;
+    public String getCodigo() {
+        return codigo;
     }
 
-    public void setVerificationCode(String verificationCode) {
-        this.verificationCode = verificationCode;
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
 
     public LocalDateTime getCodeExpiryDate() {
