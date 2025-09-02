@@ -74,4 +74,36 @@ public class PostService {
         }
         postRepository.deleteById(postId);
     }
+
+    /** Atualizar post */
+    @Transactional
+    public Post updatePost(Integer postId, String newContent) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+
+        post.setContent(newContent);
+        return postRepository.save(post);
+    }
+
+    /** Fazer comentário */
+    @Transactional
+    public void addComment(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+
+        post.setComentarios(post.getComentarios() + 1);
+        postRepository.save(post);
+    }
+
+    /** Remover comentário */
+    @Transactional
+    public void removeComment(Integer postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+
+        if (post.getComentarios() > 0) {
+            post.setComentarios(post.getComentarios() - 1);
+            postRepository.save(post);
+        }
+    }
 }

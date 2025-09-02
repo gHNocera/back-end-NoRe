@@ -10,6 +10,7 @@ public class PostDTO {
     private int likes;
     private int comments;
     private List<String> likesBy;
+    private List<String> commentsBy;
 
 
     public Long getId() { return id; }
@@ -32,4 +33,7 @@ public class PostDTO {
 
     public List<String> getLikesBy() { return likesBy; }
     public void setLikesBy(List<String> likesBy) { this.likesBy = likesBy; }
+
+    public List<String> getCommentsBy() { return commentsBy; }
+    public void setCommentsBy(List<String> commentsBy) { this.commentsBy = commentsBy; }
 }

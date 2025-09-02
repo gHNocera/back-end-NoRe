@@ -26,7 +26,7 @@ public class PostController {
     }
 
     /** Criar novo post */
-    @PostMapping
+    @PostMapping("/create")
     public Post createPost(@RequestBody PostDTO postDTO) {
         Post post = new Post();
         post.setContent(postDTO.getContent());
@@ -62,7 +62,47 @@ public class PostController {
             postRepository.save(post);
         }
 
-    return post;
-}
+        return post;
+    }
+    /** Descurtir post */
+    @PostMapping("/unlike")
+    public Post unlikePost(@RequestBody PostLikeDTO dto) {
+        Post post = postRepository.findById(dto.getPostId())
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        if (post.getLikedBy().remove(user)) {
+            post.setLikes(post.getLikes() - 1);
+            postRepository.save(post);
+        }
+        return post;
+    }
+
+    /** Deletar post */
+    @DeleteMapping("/{postId}")
+    public void deletePost(@PathVariable Integer postId) {
+        if (!postRepository.existsById(postId)) {
+            throw new RuntimeException("Post não encontrado");
+        }
+        postRepository.deleteById(postId);
+    }
+
+    /** Atualizar post */
+    @PutMapping("/{postId}")
+    public Post updatePost(@PathVariable Integer postId, @RequestBody PostDTO postDTO) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+        post.setContent(postDTO.getContent());
+        return postRepository.save(post);
+    }
+
+    /** Fazer comentário */
+    @PostMapping("/comment")
+    public Post addComment(@RequestBody PostLikeDTO dto) {
+        Post post = postRepository.findById(dto.getPostId())
+                .orElseThrow(() -> new RuntimeException("Post não encontrado"));
+        post.setComentarios(post.getComentarios() + 1);
+        return postRepository.save(post);
+    }
 
 }

@@ -41,6 +41,14 @@ public class Post {
     )
     private Set<User> likedBy;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "post_comentarios",
+        joinColumns = @JoinColumn(name = "post_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> commentsBy;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false) // garante que o campo será criado e não será nulo
     private User user;
@@ -105,4 +113,13 @@ public class Post {
     public void setLikedBy(Set<User> likedBy) {
         this.likedBy = likedBy;
     }
+    
+    public Set<User> getCommentsBy() {
+        return commentsBy;
+    }
+
+    public void setCommentsBy(Set<User> commentsBy) {
+        this.commentsBy = commentsBy;
+    }
+
 }
