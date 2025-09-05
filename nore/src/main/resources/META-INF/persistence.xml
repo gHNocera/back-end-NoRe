@@ -5,9 +5,9 @@
         <properties>
         <!--  Configurações do banco de dados  -->
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/NoRe"/>
-            <property name="javax.persistence.jdbc.user" value="postgres"/>
-            <property name="javax.persistence.jdbc.password" value="1234"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://seubanco"/>
+            <property name="javax.persistence.jdbc.user" value="seu username"/>
+            <property name="javax.persistence.jdbc.password" value="sua senha"/>
             <!--  Configurações do Hibernate  -->
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
